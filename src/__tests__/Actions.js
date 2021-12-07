@@ -9,7 +9,7 @@ describe('Given I am connected as an Employee', () => {
       const test= 'test'
       const html = Actions(test)
       document.body.innerHTML = html
-      expect(screen.getByTestId('icon-eye')).toBeTruthy() 
+      expect(screen.getByTestId('icon-eye')).toBeTruthy()
     })
   })
   describe('When I am on Bills page and there are bills with url for file of type PDF', () => {

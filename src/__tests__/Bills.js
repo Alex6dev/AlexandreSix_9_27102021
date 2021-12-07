@@ -37,17 +37,17 @@ describe("Given I am connected as an employee", () => {
       document.body.innerHTML = html
       expect(screen.getAllByText('Erreur')).toBeTruthy()
     })
-  })
+  }) 
 //fin du point 1
 //debut test unitaire et d'intégration
-/*
-  describe('When I click on the icon eye', () => {
+
+/*  describe('When I click on the icon eye', () => {
     test('A modal picture should open', () => {
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
       }))
-      const html = BillsUI(bills[0])
+      const html = BillsUI({data:bills})
       document.body.innerHTML = html
       
       const onNavigate = (pathname) => {
@@ -57,17 +57,18 @@ describe("Given I am connected as an employee", () => {
       const listeBill = new Bills({
         document, onNavigate, firestore, localStorage: window.localStorage
       })
-      const handleClickIconEye = jest.fn(listeBill.handleClickIconEye)
-      const eye = screen.getByTestId('icon-eye ') 
+      const handleClickIconEye = jest.fn(listeBill.handleClickIconEye) 
+      const eye = screen.getAllByTestId('icon-eye')[0] 
       eye.addEventListener('click', handleClickIconEye)
       userEvent.click(eye)
       expect(handleClickIconEye).toHaveBeenCalled()
 
       const modale = screen.getByTestId('boxImage')
-      expect(modale).toBeTruthy()
-    })
+      expect(modale).toBeTruthy() 
+    }) 
   })*/
   // test d'intégration GET
+
   describe("Given I am a user connected as Employee", () => {
     describe("When I navigate to Dashboard", () => {
       test("fetches bills from mock API GET", async () => {

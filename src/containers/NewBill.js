@@ -19,14 +19,12 @@ export default class NewBill {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
-    console.log(filePath)
-    console.log(fileName)
-    const tabFormatImage = ["png","jpeg","jpg","pdf"]
+    const tabFormatImage = ["png","jpeg","jpg","pdf","gif"]
     let fileType=filePath.pop().split(".").pop()
-    var box= this.document.getElementById('box') 
-    var msgerror=" Ce type de fichier n'est pas supporté, merci de prendre un type de fichier suppoter par le logiciel"
+    let box= this.document.getElementById('box')
+    let msgerror=` <p>${fileType}Ce type de fichier n'est pas supporté, merci de prendre un type de fichier suppoter par le logiciel</p>`
     if(tabFormatImage.includes(fileType)){
-      box.textContent=``;
+      box.innerHTML=``; 
       this.firestore
         .storage
         .ref(`justificatifs/${fileName}`)
@@ -38,7 +36,7 @@ export default class NewBill {
         })
 
     } else{
-      box.textContent=`${msgerror}`
+      box.innerHTML=`${msgerror}`
     }
   } 
   handleSubmit = e => {
