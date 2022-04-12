@@ -8,18 +8,19 @@ import Logout from "./Logout.js"
 export const filteredBills = (data, status) => {
   return (data && data.length) ?
     data.filter(bill => {
-
       let selectCondition
 
       // in jest environment
       if (typeof jest !== 'undefined') {
         selectCondition = (bill.status === status)
-      } else {
+      }
+      /* istanbul ignore next */
+      else {
         // in prod environment
         const userEmail = JSON.parse(localStorage.getItem("user")).email
         selectCondition =
           (bill.status === status) &&
-          [...USERS_TEST, userEmail].includes(bill.email)
+          ![...USERS_TEST, userEmail].includes(bill.email)
       }
 
       return selectCondition
@@ -67,21 +68,20 @@ export const getStatus = (index) => {
 }
 
 export default class {
-  constructor({ document, onNavigate, firestore, bills, localStorage }) {
+  constructor({ document, onNavigate, store, bills, localStorage }) {
     this.document = document
     this.onNavigate = onNavigate
-    this.firestore = firestore
+    this.store = store
     $('#arrow-icon1').click((e) => this.handleShowTickets(e, bills, 1))
     $('#arrow-icon2').click((e) => this.handleShowTickets(e, bills, 2))
     $('#arrow-icon3').click((e) => this.handleShowTickets(e, bills, 3))
-    this.getBillsAllUsers()
     new Logout({ localStorage, onNavigate })
   }
 
   handleClickIconEye = () => {
     const billUrl = $('#icon-eye-d').attr("data-bill-url")
     const imgWidth = Math.floor($('#modaleFileAdmin1').width() * 0.8)
-    $('#modaleFileAdmin1').find(".modal-body").html(`<div style='text-align: center;'><img width=${imgWidth} src=${billUrl} /></div>`)
+    $('#modaleFileAdmin1').find(".modal-body").html(`<div style='text-align: center;'><img width=${imgWidth} src=${billUrl} alt="Bill"/></div>`)
     if (typeof $('#modaleFileAdmin1').modal === 'function') $('#modaleFileAdmin1').modal('show')
   }
 
@@ -100,13 +100,11 @@ export default class {
       $(`#open-bill${bill.id}`).css({ background: '#0D5AE5' })
 
       $('.dashboard-right-container div').html(`
-        <div id="big-billed-icon"> ${BigBilledIcon} </div>
+        <div id="big-billed-icon" data-testid="big-billed-icon"> ${BigBilledIcon} </div>
       `)
       $('.vertical-navbar').css({ height: '120vh' })
       this.counter ++
-
     }
-
     $('#icon-eye-d').click(this.handleClickIconEye)
     $('#btn-accept-bill').click((e) => this.handleAcceptSubmit(e, bill))
     $('#btn-refuse-bill').click((e) => this.handleRefuseSubmit(e, bill))
@@ -140,47 +138,49 @@ export default class {
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(0deg)'})
       $(`#status-bills-container${this.index}`)
         .html(cards(filteredBills(bills, getStatus(this.index))))
-      billSelectStatus.forEach(bill => {
-        $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))      
-      });
-        
-      this.counter ++
-      
+        billSelectStatus.forEach(bill => {
+          $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))      
+        });
+        this.counter ++
     } else {
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
       $(`#status-bills-container${this.index}`)
         .html("")
       this.counter ++
     }
-    
+
+    return bills
+
   }
 
-  // not need to cover this function by tests
   getBillsAllUsers = () => {
-    if (this.firestore) {
-      return this.firestore
+    if (this.store) {
+      return this.store
       .bills()
-      .get()
+      .list()
       .then(snapshot => {
-        const bills = snapshot.docs
+        const bills = snapshot
         .map(doc => ({
           id: doc.id,
-          ...doc.data(),
-          date: doc.data().date,
-          status: doc.data().status
+          ...doc,
+          date: doc.date,
+          status: doc.status
         }))
         return bills
       })
-      .catch(console.log)
+      .catch(error => {
+        throw error;
+      })
     }
   }
-    
+
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
-    if (this.firestore) {
-    return this.firestore
-      .bill(bill.id)
-      .update(bill)
+    if (this.store) {
+    return this.store
+      .bills()
+      .update({data: JSON.stringify(bill), selector: bill.id})
       .then(bill => bill)
       .catch(console.log)
     }

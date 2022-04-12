@@ -5,7 +5,6 @@ import LoadingPage from "./LoadingPage.js"
 import Actions from './Actions.js'
 
 const row = (bill) => {
-  console.log(bill)
   return (`
     <tr>
       <td>${bill.type}</td>
@@ -19,15 +18,16 @@ const row = (bill) => {
     </tr>
     `)
   }
-
+  
+// trie de la data .sort((a,b)=>new Date(a.date).getTime()< new Date(b.date).getTime() ? 1 : -1)
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
+  return (data && data.length) ? data.sort((a,b)=>new Date(a.date).getTime()< new Date(b.date).getTime() ? 1 : -1).map(bill => row(bill)).join("") : ""
 }
 
 export default ({ data: bills, loading, error }) => {
   
   const modal = () => (`
-    <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-testid=" modale-file">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
