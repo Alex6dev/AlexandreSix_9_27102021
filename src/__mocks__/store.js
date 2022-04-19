@@ -89,5 +89,10 @@ export default {
     return mockedBills
     //return {}
   },
+  post: (data) => {
+    Promise.resolve({
+      data: [data],
+    });
+  },
 }
 

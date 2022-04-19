@@ -86,57 +86,49 @@ describe("Given I am connected as an employee", () => {
   })
   //intégration api GET
   describe("When I am on Bills page", () => {
-    test("fetches bills from mock API GET", async () => {
-      localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
-      const root = document.createElement("div")
-      root.setAttribute("id", "root")
-      document.body.append(root)
-      router()
-      window.onNavigate(ROUTES_PATH.Bills)
-      await waitFor(() => screen.getByTestId("tbody"))
-      expect(screen.getByTestId("tbody").innerHTML).not.toBe("")
-    })
-
-    describe("When an error occurs on API", () => {
-      beforeEach(() => {
-        jest.spyOn(mockStore, "bills")
-        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-        window.localStorage.setItem('user', JSON.stringify({
-          type: 'Employee',
-          email: "a@a"
-        }))
-        const root = document.createElement("div")
-        root.setAttribute("id", "root")
-        document.body.appendChild(root)
-        router()
-      })
-  
-      test("fetches bills from an API and fails with 404 message error", async () => {
-        mockStore.bills.mockImplementationOnce(() => {
-          return {
-            list : () =>  {
-              return Promise.reject(new Error("Erreur 404"))
-            }
-          }
+    describe("When I am on Bills page", () => {
+    
+      //Lorsqu'une erreur se produit sur l'API
+      describe("When an error occurs on API", () => {
+        // beforeEach()est exécuté avant chaque test describe. gère le code Asynchrone / portée plus grande
+        // Jest.spyOn simule la fonction qu'on a besoin et conserve l'implémentation d'origine. mock une méthode dans un objet.
+        beforeEach(() => {
+          jest.spyOn(mockStore, "bills")
+          Object.defineProperty(window,'localStorage',{ value: localStorageMock })
+          localStorage.setItem('user', JSON.stringify({type: 'Employee', email: "a@a"}))
+          const root = document.createElement("div")
+          root.setAttribute("id", "root")
+          document.body.appendChild(root)
+          router()
         })
-        window.onNavigate(ROUTES_PATH.Bills)
-        await new Promise(process.nextTick);
-        const message = await screen.getByText(/Erreur 404/)
-        expect(message).toBeTruthy()
-      })
-  
-      test("fetches bills from an API and fails with 500 message error", async () => {
-        mockStore.bills.mockImplementationOnce(() => {
-          return {
-            list : () =>  {
-              return Promise.reject(new Error("Erreur 500"))
-            }
-          }
+        // TEST : récupère les factures d'une API et échoue avec une erreur 404
+        test("fetches bills from an API and fails with 404 message error", async () => {
+            // mockImplementationOnce : récupère la boucle une fois
+          mockStore.bills.mockImplementationOnce(() => {
+            return {
+              list : () =>  {
+                return Promise.reject(new Error("Erreur 404"))
+              }
+            }})
+          const html = BillsUI({ error: "Erreur 404" });
+          document.body.innerHTML = html;
+          const message = await screen.getByText(/Erreur 404/);
+          expect(message).toBeTruthy();
         })
-        window.onNavigate(ROUTES_PATH.Bills)
-        await new Promise(process.nextTick);
-        const message = await screen.getByText(/Erreur 500/)
-        expect(message).toBeTruthy()
+        
+        // TEST : récupère les factures d'une API et échoue avec une erreur 500
+        test("fetches messages from an API and fails with 500 message error", async () => {
+          mockStore.bills.mockImplementationOnce(() => {
+            return {
+              list : () =>  {
+                return Promise.reject(new Error("Erreur 500"))
+              }
+            }})
+          const html = BillsUI({ error: "Erreur 500" });
+          document.body.innerHTML = html;
+          const message = await screen.getByText(/Erreur 500/);
+          expect(message).toBeTruthy();
+        })
       })
     })
   })
